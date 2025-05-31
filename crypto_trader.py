@@ -847,13 +847,11 @@ class CryptoTrader:
             if not self.driver:
                 chrome_options = Options()
                 chrome_options.debugger_address = "127.0.0.1:9222"
-                chrome_options.add_argument('--no-sandbox')
+                #chrome_options.add_argument('--no-sandbox')
                 chrome_options.add_argument('--disable-dev-shm-usage')
                 
                 system = platform.system()
-                if system == 'Darwin':  # macOS
-                    pass
-                elif system == 'Linux':  # Linux (Ubuntu)
+                if system == 'Linux':
                     chrome_options.add_argument('--disable-gpu')
                     chrome_options.add_argument('--disable-software-rasterizer')
 
@@ -895,7 +893,7 @@ class CryptoTrader:
                 self.logger.error(error_msg)
                 self._show_error_and_reset(error_msg)  
         except Exception as e:
-            error_msg = f"启动监控失败: {str(e)}"
+            self.logger.error(f"启动监控失败: {str(e)}")
             self.logger.error(error_msg)
             self._show_error_and_reset(error_msg)
 
@@ -1021,7 +1019,7 @@ class CryptoTrader:
         except Exception as e:
             self.logger.error(f"自动修复失败: {e}")
     
-    def get_nearby_cents(self, retry_times=2):
+    def get_nearby_cents(self):
         """获取spread附近的价格数字"""
         # 根据规律直接获取对应位置的值
         up_price_val = None
@@ -1035,8 +1033,7 @@ class CryptoTrader:
             keyword_element = self.driver.find_element(By.XPATH, XPathConfig.SPREAD[0])
         except NoSuchElementException:
             #self.logger.warning(f"SPREAD元素最终未找到: {keyword_element}")
-            return None, None, None, None
-        
+            return None, None, None, None   
         # 获取container
         container = None
         try:
@@ -1048,7 +1045,6 @@ class CryptoTrader:
         if not container:
             #self.logger.warning("Container for SPREAD not found (was None after trying to get ancestor).")
             return None, None, None, None         
-
         # 取兄弟节点
         above_element_texts = []
         below_element_texts = []
@@ -1106,15 +1102,14 @@ class CryptoTrader:
                             up_price_str = price_match_obj.group(1)
                             asks_shares_str = cleaned_shares
                             #self.logger.info(f"Found UP price (ask): {up_price_str} from '{price_candidate}', shares: {asks_shares_str} from '{shares_candidate}'")
-                            break # Found the first, lowest ask
-        
+                            break
         down_price_str = None
         bids_shares_str = None
         # For "down" (bids), the pattern is Price Cents, then Shares
         if len(below_element_texts) >= 2: # Need at least 2 elements
             for i in range(len(below_element_texts) - 1):
-                current_text = below_element_texts[i] # Price candidate
-                next_text = below_element_texts[i+1]    # Shares candidate
+                current_text = below_element_texts[i] 
+                next_text = below_element_texts[i+1] 
                 
                 if '¢' in current_text:
                     price_match_obj = re.search(r'(\d+\.?\d*)¢', current_text)
@@ -1125,8 +1120,7 @@ class CryptoTrader:
                             # Use the cleaned shares value directly
                             bids_shares_str = potential_shares_cleaned 
                             #self.logger.info(f"Found DOWN price (bid): {down_price_str} from '{current_text}', shares: {bids_shares_str} from '{next_text}'")
-                            break # Found the first (highest) bid
-        
+                            break 
         try:  
             if up_price_str is not None: # Check for None before float conversion
                 up_price_val = round(float(up_price_str), 2)
@@ -1157,7 +1151,7 @@ class CryptoTrader:
             self.restart_browser()
  
         try:
-            # 获取一次价格和股数
+            # 获取一次价格和SHARES
             up_price_val, down_price_val, asks_shares_val, bids_shares_val = self.get_nearby_cents()
             
             if up_price_val is not None and down_price_val is not None and asks_shares_val is not None and bids_shares_val is not None:
