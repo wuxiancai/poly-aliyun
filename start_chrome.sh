@@ -134,6 +134,7 @@ echo -e "${GREEN}启动 Chrome 中...${NC}"
 if [ -x "$SCRIPT_DIR/google-chrome" ]; then
     "$SCRIPT_DIR/google-chrome" \
         --remote-debugging-port=9222 \
+        --no-sandbox \
         --user-data-dir="$SCRIPT_DIR/ChromeDebug" \
         https://polymarket.com/markets/crypto &
 elif [ -x "$SCRIPT_DIR/chrome" ]; then
