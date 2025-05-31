@@ -972,21 +972,19 @@ class CryptoTrader:
             except Exception as chrome_e:
                 self.logger.error(f"启动Chrome浏览器失败: {str(chrome_e)}")
 
-             # 等待Chrome启动并初始化driver
+            # 等待Chrome启动并初始化driver
             max_retries = 6
             for attempt in range(max_retries):
                 try:
                     # 重新初始化driver
                     chrome_options = Options()
-                    chrome_options.debugger_address = "127.0.0.1:9222"
-                    chrome_options.add_argument('--no-sandbox')
+                    chrome_options.debugger_address = "127.0.0.1:9222" 
                     chrome_options.add_argument('--disable-dev-shm-usage')
 
                     system = platform.system()
-                    if system == 'Darwin':  # macOS
-                        pass
-                    elif system == 'Linux':  # Linux (Ubuntu)
+                    if system == 'Linux':  # Linux (Ubuntu)
                         chrome_options.add_argument('--disable-gpu')
+                        chrome_options.add_argument('--no-sandbox')
                         chrome_options.add_argument('--disable-software-rasterizer')
 
                     self.driver = webdriver.Chrome(options=chrome_options)
