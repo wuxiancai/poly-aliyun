@@ -893,6 +893,7 @@ class CryptoTrader:
                 self.logger.error(error_msg)
                 self._show_error_and_reset(error_msg)  
         except Exception as e:
+            error_msg = f"启动浏览器失败: {str(e)}"
             self.logger.error(f"启动监控失败: {str(e)}")
             self.logger.error(error_msg)
             self._show_error_and_reset(error_msg)
