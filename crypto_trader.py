@@ -847,12 +847,13 @@ class CryptoTrader:
             if not self.driver:
                 chrome_options = Options()
                 chrome_options.debugger_address = "127.0.0.1:9222"
-                #chrome_options.add_argument('--no-sandbox')
+                
                 chrome_options.add_argument('--disable-dev-shm-usage')
                 
                 system = platform.system()
                 if system == 'Linux':
                     chrome_options.add_argument('--disable-gpu')
+                    chrome_options.add_argument('--no-sandbox')
                     chrome_options.add_argument('--disable-software-rasterizer')
 
                 self.driver = webdriver.Chrome(options=chrome_options)
